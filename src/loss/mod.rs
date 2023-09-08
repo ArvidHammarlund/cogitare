@@ -1,1 +1,1 @@
-mod kl_divergence;
+mod divergence;
