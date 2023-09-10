@@ -6,7 +6,9 @@ use burn::{
     tensor::{backend::Backend, Distribution, Int, Tensor},
 };
 
-#[derive(Debug)]
+use derive_new::new;
+
+#[derive(Debug, new)]
 pub struct KLDivergence {
     // backend: PhantomData<B>,
 }
@@ -22,10 +24,10 @@ impl KLDivergence {
     }
 }
 
-#[derive(Debug)]
-pub struct MaximumMeanDicrepancy {}
+#[derive(Debug, new)]
+pub struct MaximumMeanDiscrepancy {}
 
-impl MaximumMeanDicrepancy {
+impl MaximumMeanDiscrepancy {
     pub fn forward<B: Backend>(
         &self,
         mean: Tensor<B, 2>,
@@ -51,7 +53,7 @@ impl MaximumMeanDicrepancy {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, new)]
 pub struct DistangledLatent {
     covariance_scaling: f32,
     variance_scaling: f32,
@@ -63,7 +65,7 @@ impl DistangledLatent {
         let device = &mean.device();
         let diagonal = Self::diagonal(dim).to_device(device);
 
-        let covariance_matrix = Self::covariance(mean);
+        let covariance_matrix = Self::cov(mean, 0, 1);
 
         let lhs = covariance_matrix
             .clone()
@@ -82,25 +84,26 @@ impl DistangledLatent {
         rhs + lhs
     }
 
-    fn covariance<B: Backend>(mean: Tensor<B, 2>) -> Tensor<B, 2> {
-        let [batch, _] = mean.dims();
-        let centered = mean.clone() - mean.mean_dim(0);
+    pub fn cov<B: Backend>(
+        tensor: Tensor<B, 2>,
+        dim: usize,
+        degrees_of_feedom: usize,
+    ) -> Tensor<B, 2> {
+        let n = tensor.dims()[dim];
+        let centered = (tensor.clone() - tensor.mean_dim(dim)).swap_dims(dim, 0);
         centered
             .clone()
             .transpose()
-            .div_scalar(batch as f32 - 1.)
             .matmul(centered)
+            .div_scalar(n as f32 - degrees_of_feedom as f32)
     }
 
     fn diagonal<B: Backend>(size: usize) -> Tensor<B, 2> {
-        let indices = (0..size)
-            .map(|e| Tensor::<B, 1, Int>::from_ints([e as i32]))
-            .map(|e| e.unsqueeze())
-            .collect::<Vec<Tensor<B, 2, Int>>>();
-        let indices = Tensor::cat(indices, 0);
-        let ones = Tensor::ones([size]).reshape([size, 1]);
-        let diagonal = Tensor::<B, 2>::zeros([size, size]).scatter(1, indices, ones);
-        diagonal
+        let indices = Tensor::arange(0..size).unsqueeze();
+        let ones = Tensor::ones([size]).unsqueeze();
+        Tensor::<B, 2, Int>::zeros([size, size])
+            .scatter(0, indices, ones)
+            .float()
     }
 }
 

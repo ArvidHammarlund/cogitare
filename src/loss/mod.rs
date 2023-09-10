@@ -1,1 +1,1 @@
-mod divergence;
+pub mod divergence;

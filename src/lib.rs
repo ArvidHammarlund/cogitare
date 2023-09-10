@@ -1,2 +1,2 @@
-mod loss;
-mod models;
+pub mod loss;
+pub mod models;

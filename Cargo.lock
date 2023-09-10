@@ -237,6 +237,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "cogitare"
+version = "0.1.0"
+dependencies = [
+ "burn",
+ "derive-new",
+ "itertools",
+ "serde",
+ "statrs",
+]
+
+[[package]]
 name = "const-random"
 version = "0.1.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -531,17 +542,6 @@ name = "hermit-abi"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "443144c8cdadd93ebf52ddb4056d257f5b52c04d3c804e657d19eb73fc33668b"
-
-[[package]]
-name = "imdb"
-version = "0.1.0"
-dependencies = [
- "burn",
- "derive-new",
- "itertools",
- "serde",
- "statrs",
-]
 
 [[package]]
 name = "itertools"
