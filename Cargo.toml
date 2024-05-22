@@ -9,5 +9,6 @@ edition = "2021"
 burn = { version = "0.9.0", features = [ "ndarray" ]}
 derive-new = "0.5.9"
 itertools = "0.11.0"
+gix-fs = "0.11.0"
 serde = "1.0.185"
 statrs = "0.16.0"
